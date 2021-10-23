@@ -1,0 +1,11 @@
+/* Type Assertions */
+
+let someValue: unknown = "this is a sting value";
+
+let stringLength = (someValue as string).length;
+
+let strLength = (<string>someValue).length;
+
+
+let mathsmarks: string = '500';
+let numMathMarks: number = parseInt(mathsmarks);

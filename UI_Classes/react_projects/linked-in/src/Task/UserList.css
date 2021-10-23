@@ -1,0 +1,6 @@
+.fles {
+  display: flex;
+}
+.fles div {
+  margin: 20px;
+}

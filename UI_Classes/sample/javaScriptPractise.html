@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <p id="demo"></p>
+    <p id="demo1"></p>
+    <p id="demo2"></p>
+    <button onclick="print_current_page()">Print this page</button>
+    <script>
+        // To get the Present Day
+        var today = new Date();
+        var day = today.getDay();
+        var daylist= ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+        document.getElementById("demo").innerHTML="Today is "+ daylist[day];
+
+        // To get the Current Time
+        var hour = today.getHours();
+        var minutes = today.getMinutes();
+        var seconds = today.getSeconds();
+        hour = hour < 10 ? '0'+hour : hour;
+        minutes = minutes < 10 ? '0'+minutes : minutes;
+        seconds = seconds < 10 ? '0'+seconds : seconds;
+        var ampm = hour >= 12 ? 'PM' : 'AM';
+           // hours = hours % 12;
+        document.getElementById("demo1").innerHTML="Current Time : "+hour + " : " + minutes + " : " + seconds+" "+ampm;
+        
+        // To print the contents of the current window
+        function print_current_page(){
+            window.print();
+        }
+
+        // to get the current date
+        var today = new Date();
+        var day = today.getDate();
+        var month = today.getMonth()+1;
+        var year = today.getFullYear();
+        month = month < 10 ? '0'+month : month;
+        document.getElementById("demo2").innerHTML = "Date is : " + day+ "/" + month + "/" + year;
+   </script>
+</body>
+</html>

@@ -1,0 +1,16 @@
+/* 
+    Boolean
+    number
+    String
+    Array // Array<> //Generic
+    Tuple
+    object
+    enum
+    any
+    unknown
+    union
+    void
+    never
+    null
+    undefined
+*/

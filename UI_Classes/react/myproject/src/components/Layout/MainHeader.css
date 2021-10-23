@@ -1,0 +1,5 @@
+.flex {
+  background-color: brown;
+  display: flex;
+  padding: 10px;
+}

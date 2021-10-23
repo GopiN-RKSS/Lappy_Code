@@ -1,0 +1,579 @@
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+
+import { connect } from 'react-redux';
+import { Calendar, Views, momentLocalizer } from 'react-big-calendar';
+import moment from 'moment';
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import { getEvents, getRangeEventList } from '../../Store/events/eventsListAction';
+import CustomToolBar from './CustomToolbar';
+import Typography from '@material-ui/core/Typography';
+import IconButton from '@material-ui/core/IconButton';
+import Edit from '@material-ui/icons/Edit';
+import CloseIcon from '@material-ui/icons/Close';
+import swal from 'sweetalert';
+import HttpService from '../../Services/HttpService';
+import ReactPagenate from 'react-paginate';
+import { Button, Spinner } from 'react-bootstrap'
+import { Label } from '@material-ui/icons';
+
+const localizer = momentLocalizer(moment);
+
+
+
+
+class AgecySponsored extends Component {
+
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      events: [],
+      start: '',
+      end: '',
+      eventSearchList: [],
+      allEvents: [],
+      searchInput: '',
+      showListView: 'calender',
+      DefaultMessage: '',
+      spinner: false,
+      offset: 0,
+      perPage: 10,
+      currentPage: 0,
+      filterResources: [],
+      slice: [],
+      deleteResponse: {},
+      EventSearchList: [],
+      EventsearchInput: '',
+      calenderEventsData: [],
+      toolbardata: {},
+      datelbel: ''
+      //pageCount:''
+    };
+  }
+
+  componentDidMount() {
+    this.setState({ spinner: true })
+    //this.state.spinner = true
+   // this.props.getEvents();
+   var data ={
+         organized_by:"agency",
+           month:"current"
+  }
+  console.log("input current data:- ", data)
+  this.props.getRangeEventList(data)
+  }
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({ spinner: true })
+    // this.setState({
+    //   events:nextProps.eventsList.eventslist.eventslist,
+    //   calenderEventsData:nextProps.eventsList.eventslist.eventslist
+    // })
+    this.state.events = nextProps.eventsList.bigseventslist.eventslist
+    this.setState({
+      calenderEventsData: nextProps.eventsList.bigseventslist.eventslist.map((appointment) => {
+        return {
+          id: appointment.event_id,
+          title: appointment.event_name,
+          start: new Date(appointment.start_date),
+          end: new Date(appointment.end_date),
+          allDay: false,
+          hexColor: appointment.tag_color
+        }
+      })
+    })
+
+    if (this.state.events.length === 0) {
+
+      this.setState({
+        spinner: false,
+        DefaultMessage: "No events found.",
+        pageCount: 0
+      })
+    }
+    else {
+
+
+      this.state.events = nextProps.eventsList.bigseventslist.eventslist
+      this.state.filterResources = nextProps.eventsList.bigseventslist.eventslist.slice(this.state.offset, this.state.offset + this.state.perPage)
+      const postData = this.state.filterResources.map(pd => <React.Fragment>
+      </React.Fragment>)
+      this.setState({
+        spinner: false,
+        pageCount: Math.ceil(this.state.events.length / this.state.perPage),
+        postData
+      })
+    }
+  }
+
+  handlePageClick = (e) => {
+    const selectedPage = e.selected;
+    const offset = selectedPage * this.state.perPage;
+    this.setState({
+      currentPage: selectedPage,
+      offset: offset
+    }, () => {
+      this.receivedData()
+    });
+  };
+  receivedData() {
+    this.state.slice = this.state.events.slice(this.state.offset, this.state.offset + this.state.perPage)
+    const postData = this.state.slice.map(pd => <React.Fragment>
+
+      <img src={pd.thumbnailUrl} alt="" />
+    </React.Fragment>)
+    this.setState({
+      pageCount: Math.ceil(this.state.events.length / this.state.perPage),
+      postData
+    })
+  }
+
+  onnewEvent() {
+    this.props.history.push({
+      pathname: '/dashboard/events/add_event'
+    })
+  }
+
+  onEdit(item) {
+    this.props.history.push({
+      pathname: '/dashboard/events/add_event',
+      state: { detail: item }
+    })
+  }
+  onDelete(event_id) {
+
+    swal({
+      title: "Delete Event",
+      text: "Are you sure you want to delete this event? Deleted events may not be restored.",
+
+      buttons: ["No, Cancel", "Yes, Delete"],
+      dangerMode: true,
+    })
+      .then((willDelete) => {
+        if (willDelete) {
+          console.log('id', event_id)
+          if (event_id > -1) {
+            this.state.events.splice(event_id, 1);
+          }
+          //this.props.deleteEventForm({ event_id })
+
+          HttpService.deleteevent({ event_id })
+            .then(response => {
+              console.log('event delete response', response.data);
+              this.state.deleteResponse = response.data
+              if (this.state.deleteResponse.status === 200) {
+
+                this.state.events = ""
+                this.props.getEvents()
+                this.state.spinner = false
+                swal(this.state.deleteResponse.message, {
+                  icon: "success",
+                });
+              }
+              else {
+                this.state.spinner = false
+                swal(this.state.deleteResponse.message, {
+                  icon: "error",
+                });
+              }
+              //dispatch(deleteeventfor(response.data));
+            })
+            .catch(error => {
+              this.state.spinner = false
+              swal(error, {
+                icon: "error",
+              });
+              // dispatch(EventError());
+            })
+
+        }
+      });
+  }
+  eventStyleGetter = (event, start, end, isSelected) => {
+    console.log(event.hexColor);
+    var backgroundColor = '#' + event.hexColor;
+    //var backgroundColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
+
+    var style = {
+      backgroundColor: backgroundColor,
+      borderRadius: '0px',
+      //opacity: 0.8,
+      color: 'white',
+      border: '0px',
+      display: 'block'
+    };
+    return {
+      style: style
+    };
+  }
+  searchHandler = (event) => {
+    this.state.searchInput = event.target.value
+
+    if (this.state.showListView == 'list') {
+
+      if (event.target.value.length === 0) {
+        this.props.getEvents();
+        this.setState({ spinner: !this.state.spinner, EventSearchList: [], EventsearchInput: '', DefaultMessage: '' })
+      }
+      else {
+        let searcjQery = event.target.value,
+          displayedSearch = this.state.events.filter((el) => {
+            let searchValue = el.event_name;
+            if (searchValue != null) {
+              return searchValue.toLowerCase().indexOf(searcjQery.toLowerCase()) !== -1;
+            }
+          })
+
+        if (displayedSearch.length > 0) {
+          this.setState({ DefaultMessage: '', EventSearchList: displayedSearch, pageCount: Math.ceil(displayedSearch.length / this.state.perPage), EventsearchInput: event.target.value })
+
+        } else {
+          this.setState({ EventSearchList: [], DefaultMessage: 'No Events Found.' })
+        }
+      }
+    }
+    else {
+      if (this.state.searchInput == '') {
+        this.state.eventSearchList = []
+        this.props.getEvents();
+
+      }
+      else {
+        let searcjQery = event.target.value,
+          displayedevents = this.state.calenderEventsData.filter((el) => {
+            let searchValue = el.title;
+            return searchValue.toLowerCase().indexOf(searcjQery.toLowerCase()) !== -1;
+          })
+        if (displayedevents.length > 0) {
+          this.setState({ eventSearchList: displayedevents })
+        }
+        else {
+          this.setState({ eventSearchList: [] })
+        }
+      }
+    }
+  }
+
+  handleChange = (event) => {
+
+    if (event.target.value == 'list') {
+      this.setState({
+        showListView: event.target.value
+      })
+    }
+    else {
+      this.setState({
+        showListView: event.target.value
+      })
+    }
+  }
+  CustomToolbar = (toolbar) => {
+    this.state.toolbardata = toolbar    
+
+    const labellist = () => {
+      const date = moment(toolbar.date);
+      return (
+        <span><b>{date.format('MMMM')}</b><span> {date.format('YYYY')}</span></span>
+      );
+    };
+    return (
+      <Typography variant="headline" style={{ color: '4d4f5c', textTransform: 'capitalize', width: '100%' }}></Typography>
+    );    
+  }
+  goToBack(prev) {
+    if (this.state.showListView=='list') {
+    }
+    else {
+    }
+  this.state.toolbardata.date.setMonth(this.state.toolbardata.date.getMonth());
+
+    this.state.toolbardata.onNavigate(prev);
+    let senddate = '0'+this.state.toolbardata.date.getMonth()
+    
+    const date = moment(this.state.toolbardata.date);
+    var data ={
+       organized_by:"agency",
+          from: date.format('YYYY')+"-"+senddate+"-"+"01",
+          to:date.format('YYYY')+"-"+senddate+"-"+"31"  
+    }
+    this.props.getRangeEventList(data)
+  }
+  goToNext(next) {
+    this.state.toolbardata.date.setMonth(this.state.toolbardata.date.getMonth());
+    this.state.toolbardata.onNavigate(next);
+
+    const date = moment(this.state.toolbardata.date);
+    let senddate = '0'+(this.state.toolbardata.date.getMonth()+2)
+
+    var data ={
+       organized_by:"agency",
+          from: date.format('YYYY')+"-"+senddate+"-"+"01",
+          to:date.format('YYYY')+"-"+senddate+"-"+"31"  
+    }
+    this.props.getRangeEventList(data)
+
+    return (
+      <Typography variant="headline" style={{ color: '4d4f5c', textTransform: 'capitalize', width: '100%' }}>{this.state.datelbel}</Typography>
+    )
+  }
+
+  goToCurrent = () => {
+    const now = new Date();
+    this.state.toolbardata.date.setMonth(now.getMonth());
+    this.state.toolbardata.date.setYear(now.getFullYear());
+    this.state.toolbardata.onNavigate('current');
+    var data ={
+           organized_by:"agency",
+           day:"today"
+    }
+    this.props.getRangeEventList(data)
+  };
+
+  label() {
+    const date = moment(this.state.toolbardata.date);
+    return (
+      <span><b>{date.format('MMMM')}</b><span> {date.format('YYYY')}</span></span>
+    );
+  }  
+
+  render() {
+    const { onNavigate } = this.props;
+
+    if (this.state.searchInput == '') {
+      this.state.allEvents = this.state.calenderEventsData
+    }
+    else {
+      this.state.allEvents = this.state.eventSearchList
+    }
+
+    const CustomToolbar = (toolbar) => {
+      this.state.toolbardata = toolbar
+      const goToBack = () => {
+        toolbar.date.setMonth(this.state.toolbardata.date.getMonth() - 1);
+        toolbar.onNavigate('prev');
+      };
+
+      const goToNext = () => {
+        toolbar.date.setMonth(this.state.toolbardata.date.getMonth() + 1);
+        toolbar.onNavigate('next');
+      };
+
+      const goToCurrent = () => {
+        const now = new Date();
+        toolbar.date.setMonth(now.getMonth());
+        toolbar.date.setYear(now.getFullYear());
+        toolbar.onNavigate('current');
+      };
+
+      const label = () => {
+        const date = moment(toolbar.date);
+        return (
+          <span><b>{date.format('MMMM')}</b><span> {date.format('YYYY')}</span></span>
+        );
+      };
+
+      return (
+        <div >
+          <div className="col-12 p-0" style={{ display: 'flex', alignItems: 'center' }}>
+
+            <div className="col-md-4 ">
+              <div className="text-center">
+                {/* <IconButton onClick={() => goToBack('PREV')}><i style={{ border: '1px solid #D7DAE2', borderRadius: '2px', padding: '5px', color: 'lightgray' }} class="fa fa-chevron-left" aria-hidden="true"></i></IconButton>
+                <Typography variant="headline" style={{ color: '4d4f5c', textTransform: 'capitalize', width: '100%' }}>{label()}</Typography>
+                <IconButton onClick={() => goToNext('NEXT')}><i style={{ border: '1px solid #D7DAE2', borderRadius: '2px', padding: '5px', color: 'lightgray' }} class="fa fa-chevron-right" aria-hidden="true"></i></IconButton> */}
+              </div>
+            </div>
+            <div className="col-md-4 text-right pr-0">
+              <span className="today-sec" onClick={() => goToCurrent('TODAY')}>Today</span>
+            </div>
+          </div>  </div>
+      );
+    };
+
+
+    return (
+      <div className="container">
+        <div className="col-md-12">
+          <div className="events-calender-sec">
+            <div className="row">
+              <div className="col-md-6">
+                <h3 className="pagename">Agency Sponsored Events</h3>
+              </div>
+              <div className="col-md-6">
+                <div className="row">
+                  <div className="col-md-8">
+                    <div>
+                      <span style={{ position: 'absolute', padding: '15px', zIndex: '2', display: 'block', color: '#aaa' }} className="fa fa-search"></span>
+                      <input style={{ paddingLeft: '40px' }} type="text" className="form-control" placeholder="Search Events..." onChange={(e) => this.searchHandler(e)} />
+                    </div>
+                  </div>
+                  <div className="col-md-4">
+                    <button type="button" className="btn btn-info btn-success mt-1" onClick={() => this.onnewEvent()}>New Event</button>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+            <div style={{marginTop:'10px'}} className="col-md-4 pl-0">
+              <select onChange={(e) => this.handleChange(e)} style={{ padding: '5px', border: '1px solid #D7DAE2', borderRadius: '4px' }} className="cal-dpdwn">
+                <option selected value="calender" > Calendar View</option>
+                <option value="list">List View</option>
+              </select>
+            </div>
+            <div className="col-md-4 ">
+              <div className="text-center">
+                <IconButton onClick={() => this.goToBack('PREV')} ><i style={{ border: '1px solid #D7DAE2', borderRadius: '2px', padding: '5px', color: 'lightgray' }} class="fa fa-chevron-left" aria-hidden="true"></i></IconButton>
+                <Typography variant="headline" style={{ color: '4d4f5c', textTransform: 'capitalize', width: '100%',fontWeight:'600' }}>{this.state.toolbardata.label}</Typography>                
+                <IconButton onClick={() => this.goToNext('NEXT')}><i style={{ border: '1px solid #D7DAE2', borderRadius: '2px', padding: '5px', color: 'lightgray' }} class="fa fa-chevron-right" aria-hidden="true"></i></IconButton>
+              </div>
+            </div>
+            <div style={{marginTop:'15px'}} className="col-md-4 text-right pr-0">
+              <span onClick={() => this.goToCurrent('TODAY')} className="today-sec" >Today</span>
+            </div>
+            <div style={{ width: '100%', paddingTop: '20px', marginLeft: '0px' }} className="row">
+              <div className="box">
+                <center>
+                  {this.state.spinner ? <Spinner
+                    animation="border"
+                    role="status" >
+                    <span className="sr-only">Loading...</span>
+                  </Spinner> : null}
+                </center>
+                {
+                  this.state.showListView == 'list' ?
+                    <div className="mb-3 col-12 text-center">
+                      <div className="table-responsive">
+                        <table id="dataTable">
+                          {!this.state.DefaultMessage > 0 ? <thead>
+                            <tr>
+                              <th>Date</th>
+                              <th>Time</th>
+                              <th>Event Title</th>
+                              <th>Tag</th>
+                              {/* <th>Status</th> */}
+                              <th></th>
+                            </tr>
+                          </thead> : null}
+                          <tbody>
+                            {
+                              this.state.EventsearchInput ? this.state.EventSearchList.length ? this.state.EventSearchList?.slice(this.state.offset, this.state.offset + this.state.perPage).map(item => (
+                                <tr key={item.event_id}>
+                                  <td>{moment(item.start_date).format('MM/DD/YYYY')}</td>
+                                  <td>{item.start_time}</td>
+                                  <td> {item.event_name}</td>
+                                  <td>Tag</td>                                  
+                                  <div className="float-right">
+                                    <span className="pr-2"
+                                      name="edit"
+                                      onClick={() => this.onEdit(item)}
+                                    ><Edit /></span>
+                                    <span
+                                      name="remove"
+                                      onClick={() => this.onDelete(item.event_id)}
+                                    ><CloseIcon /></span>
+                                  </div>
+                                </tr>
+                              )) : <h3>{this.state.DefaultMessage}</h3> :
+                                this.state.events.length ? this.state.events?.slice(this.state.offset, this.state.offset + this.state.perPage).map(item => (
+                                  <tr key={item.event_id}>
+                                    <td>{moment(item.start_date).format('MM/DD/YYYY')}</td>
+                                    <td>{item.start_time}</td>
+                                    <td> {item.event_name}</td>
+                                    <td>Tag</td>                                   
+                                    <div className="float-right">
+                                      <span className="pr-2"
+                                        name="edit"
+                                        onClick={() => this.onEdit(item)}
+                                      ><Edit /></span>
+                                      <span
+                                        name="remove"
+                                        onClick={() => this.onDelete(item.event_id)}
+                                      ><CloseIcon /></span>
+                                    </div>
+                                  </tr>
+                                )) : <h3>{this.state.DefaultMessage}</h3>
+                            }
+                          </tbody>
+                        </table>
+                        <div>
+                        </div>
+                        {this.state.events.length ? <div className="pagination">
+                          {this.state.postData}
+                          <ReactPagenate
+                            previousLabel={"<"}
+                            nextLabel={">"}
+                            breakLabel={"..."}
+                            breakClassName={"break-me"}
+                            pageCount={this.state.pageCount}
+                            marginPagesDisplayed={2}
+                            pageRangeDisplayed={10}
+                            onPageChange={this.handlePageClick}
+                            containerClassName={"pagination"}
+                            subContainerClassName={"pages pagination"}
+                            activeClassName={"active"}
+                          ></ReactPagenate>
+                        </div> : null
+                        }
+                      </div>
+                    </div>
+                    :this.state.searchInput.length ? this.state.eventSearchList.length ?
+                      <Calendar
+                        localizer={localizer}
+                        views={['month']}
+                        defaultDate={new Date()}
+                        popup
+                        events={this.state.allEvents}
+                        components={{ toolbar: this.CustomToolbar }}
+                        style={{ height: "75vh" }}
+                        eventPropGetter={(this.eventStyleGetter)}
+                      /> : <div style={{ width: '100%' }}><h3 style={{ textAlign: 'center' }}>No data found</h3></div> :
+                      this.state.calenderEventsData.length ?
+                        <Calendar
+                          localizer={localizer}
+                          views={['month']}
+                          defaultDate={new Date()}
+                          popup
+                          events={this.state.allEvents}
+                          components={{ toolbar: this.CustomToolbar }}
+                          toolbar={this.state.toolbardata}
+                          style={{ height: "75vh" }}
+                          eventPropGetter={(this.eventStyleGetter)}
+                        /> : 
+                      <Calendar
+                     localizer={localizer}
+                     views={['month']}
+                     defaultDate={new Date()}
+                     popup
+                     events={this.state.allEvents}
+                     components={{ toolbar: this.CustomToolbar }}
+                     toolbar={this.state.toolbardata}
+                     style={{ height: "75vh" }}
+                     eventPropGetter={(this.eventStyleGetter)}
+                   />
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+}
+AgecySponsored.propTypes = {
+  onView: PropTypes.func,
+  onNavigate: PropTypes.func,
+  // label: PropTypes.string,
+  view: PropTypes.string,
+  views: PropTypes.array,
+
+};
+
+export const mapStateToProps = (state) => {
+  return {
+    eventsList: state.eventsList
+  }
+}
+
+export default connect(mapStateToProps, { getEvents, getRangeEventList })(AgecySponsored)

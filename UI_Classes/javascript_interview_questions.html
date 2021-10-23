@@ -1,0 +1,359 @@
+<script>
+
+1. Explain Hoisting in javascript.
+
+	All the variable and function declarations are moved on top.
+	
+	Ex: a = 3;
+		console.log(a); // outputs 3 even when the variable is declared after it is initialized	
+		var a;
+		
+	Ex:	hoistedFunction();  // Outputs " Hello world! " even when the function is declared after calling
+		function hoistedFunction(){ 
+		  console.log(" Hello world! ");
+		}
+		
+		Note : *** Variable initializations are not hoisted, only variable declarations are hoisted:
+		
+		var x;
+		console.log(x); // Outputs "undefined" since the initialization of "x" is not hoisted
+		x = 23;
+		
+ 2. What is the use of isNaN function?
+
+	isNan function returns true if the argument is not a number; otherwise, it is false.
+	
+	To check if a value is NaN, we use the isNaN() function.
+	
+	Ex: isNaN("Hello")  // Returns true
+		isNaN(345)   // Returns false
+			
+3. Explain passed by value and passed by reference?
+
+	primitive data types when passed to another variable, are passed by value. Instead of just assigning the same address to another variable, the value is passed and new space of memory is created.
+	
+  	Ex: var y = 234;
+		var z = y;
+	
+	while passing non-primitive data types, the assign operator directly passes the address (reference).
+
+	Therefore, non-primitive data types are always passed by reference.
+	
+	var obj = { name: "Vivek", surname: "Bisht" };
+
+	var obj2 = obj;
+	
+4. What is an Immediately Invoked Function in JavaScript?
+
+	An Immediately Invoked Function ( known as IIFE and pronounced as IIFY) is a function that runs as soon as it is defined.
+	
+	(function (){
+		// Do something;
+	})();
+	
+	Therefore to invoke the function, we use the second set of parenthesis. .
+	
+5. What is the use of bind method?
+
+	The bind() is an inbuilt method in React that is used to pass the data as an argument to the function of a class based component.
+
+	Syntax:
+
+	this.function.bind(this,arg1...);
+	
+	Parameter: It accepts two parameters, the first parameter is the this keyword used for binding and the second parameter is the sequence of arguments and are optional.
+	
+	The bind() method creates a new function, when invoked, has the this sets to a provided value.
+	
+	The bind() method allows an object to borrow a method from another object without making a copy of that method. This is known as function borrowing in JavaScript.
+	
+6. What is the use of call() method?
+
+	It can be used to invoke (call) a method with an owner object as an argument (parameter).
+	With call(), an object can use a method belonging to another object.
+	
+	Ex1: const person = {
+		  fullName: function() {
+			return this.firstName + " " + this.lastName;
+		  }
+		}
+		const person1 = {
+		  firstName:"John",
+		  lastName: "Doe"
+		}
+		const person2 = {
+		  firstName:"Mary",
+		  lastName: "Doe"
+		}
+
+		// This will return "John Doe":
+		person.fullName.call(person1);
+		
+	Ex2: let data = { fname: "gopi", lname: "chand", age: 26 };
+		 let data1 = { fname: "dhoni", lname: "ms", age: 39 };
+		 function getFullName(msg, greet) {
+		  return msg + " " + this.fname + " " + this.lname + " " + greet;
+		 }
+		 
+		 console.log(getFullName.call(data, "hi", "Where r u"));
+		 console.log(getFullName.call(data1, "hi", "Where r u"));
+		 
+7. 	What is Destructuring?
+
+	It is used to get individual pieces of objects and arrays.
+	
+	ex: let arr = [1, 2, 3, 4, "gopi", "dhoni"];
+
+		//array destructuring
+		let [a, b] = arr;
+		
+8.  what is spread operator?
+
+	It is used to spread out all the elements of an array or object.
+	It is also used to create new arrays or objects that are clones(copy).
+	
+	Ex: let arr = [1, 2, 3, 4, "gopi", "dhoni"];
+		let newArr = [...arr];
+	
+9.	The Difference Between call() and apply()?
+
+	The difference is:
+
+	The call() method takes arguments separately.
+	The apply() method takes arguments as an array.
+	
+	function getName(greet, msg) {
+	return greet + " " + this.name + " " + msg;
+	}
+
+
+	let user = {
+	  name: "syed",
+	  id: 9,
+	  city: "hyd",
+	};
+
+	console.log(getName.apply(user, ["Hello", "How are u ?"]));
+	
+10. Rest operator in javascript? 
+
+	function functionname(...parameters)//... is the rest parameter
+	{
+	statement;
+	}
+	
+	… is at the end of function parameter, it is the rest parameter. It stores n number of parameters as an array.
+	
+11. What is Closure in javascript?
+
+	Closure in javascript means an inner function have access to the variable that are defined in the outer function. Whenever we are declaring a function inside another function we are actually creating closures.
+	
+	Ex: function developer(){
+		let name = 'gopi';
+		
+		function displayName(){
+			console.log(name);
+		}
+		return displayName;
+	}
+	 
+	 let dname = developer();
+	 dname();
+	 
+12. What is callback in javascript?4 A
+
+	 A function that is passed to another function as a parameter.
+	
+	function modifyArray(arr, callback) {
+        arr.push(100);
+        callback();
+      }
+
+      var arr = [1, 2, 3, 4, 5];
+      modifyArray(arr, function () {
+        console.log("array has been modified", arr);
+      });
+	  
+13. What is currying functions in javascript?
+
+	Currying is function with multiple arguments, into sequence of functions with single argument.In other words, when a function, instead of taking all arguments at one time, takes the first one and return a new function that takes the second one and returns a new function which takes the third one, and so forth, until all arguments have been fulfilled.
+	
+	function sum(a) {
+                return (b) => {
+                    return (c) => {
+                        console.log(a,b);//having access to parent scope
+                        return a + b + c
+                    }
+                }
+            }
+        let result = sum(1)(2)(3);
+        console.log(result);
+		
+14. Higher-Order functions in javascript?
+
+	A higher order function is a function that receives a function as an argument or returns the function as output. It performs operations on functions.
+	
+	Ex: const numbers = [1, 2, 3, 4, 5];
+		numbers.forEach((number) => console.log(number + 1));
+		
+	Ex: const arr1 = [1, 2, 3];
+             const arr2 = arr1.map(function (item) {
+                 return item * 2;
+             });
+             console.log(arr2);
+			 
+			 
+15.	What are the states of a promise? Explain about promises?
+
+	1.Pending
+	2.Fulfilled
+	3.Rejected
+	
+	Def : 	"Producing code" is code that can take some time.
+
+			"Consuming code" is code that must wait for the result.
+
+			A Promise is a JavaScript object that links producing code and consuming code.
+			
+	Ex: let myPromise = new Promise(function(myResolve, myReject) {
+		// "Producing Code" (May take some time)
+
+		  myResolve(); // when successful
+		  myReject();  // when error
+		});
+
+		// "Consuming Code" (Must wait for a fulfilled Promise)
+		myPromise.then(
+		  function(value) { /* code if successful */ },
+		  function(error) { /* code if some error */ }
+		);
+		
+	Ex: let p = new Promise((resolve, reject) => {
+		  let a = 1 + 1;
+		  if (a == 2) {
+			resolve("success");
+		  } else {
+			reject("Failure");
+		  }
+		});
+		p.then((message) => {
+		  console.log("This is in the resolve:" + message); 
+		}).catch((message) => {
+		  console.log("This is in the catch:" + message);
+		});
+
+		
+	
+16. Asynchronous JavaScript?
+
+	Functions running in parallel with other functions are called asynchronous.
+	
+	Asynchronous code allows the program to be executed immediately where the synchronous code will block further execution of the remaining code until it finishes the current one.
+	
+	Ex: setTimeout(myFunction, 3000);
+
+		function myFunction() {
+		  console.log("Hello");
+		}
+	
+	Ex: setInterval(myFunction, 1000);
+
+		function myFunction() {
+		  let d = new Date();
+		  console.log(d.getHours() + ":" + d.getMinutes() + ":" + d.getSeconds());  
+		}
+
+
+17. Synchronous JavaScript?
+
+	As the name suggests synchronous means to be in a sequence, i.e. every statement of the code gets executed one by one. So, basically a statement has to wait for the earlier statement to get executed. 
+
+	Example:
+
+    document.write("Hi"); // First
+  
+    document.write("Mayukh") ;// Second
+      
+    document.write("How are you"); // Third	
+	
+18. Async and Await in javascript?
+
+	"async and await make promises easier to write"
+
+	async makes a function return a Promise.
+
+	await makes a function wait for a Promise.
+	
+	Ex: async function display() {
+		let promise = new Promise((resolve, reject) => {
+		let a = 2;
+		if (a === 2) {
+		  resolve("success");
+		} else {
+		  reject("failure");
+		}
+		});
+		let res = await promise;
+		console.log(res);
+		}
+		display();
+		
+	
+19. What is the difference between undefined and null?
+
+	* undefined is the default value of a variable that has not been assigned a specific value.
+	
+	let _thisIsUndefined;
+	console.log(_thisIsUndefined); //undefined
+	
+	
+	* null is a value that represents no value. 
+	
+	* When comparing null and undefined we get true when using == and false when using ===.
+	
+	console.log(null == undefined); // logs true
+	console.log(null === undefined); // logs false
+	
+	
+20. Explain Implicit Type Coercion in javascript?
+
+	Implicit type coercion in javascript is automatic conversion of value from one data type to another. It takes place when the operands of an expression are of different data types.
+	
+	String coercion:
+	
+	String coercion takes place while using the ‘ + ‘ operator. When a number is added to a string, the number type is always converted to the string type.
+	
+	Example 1:
+	
+		var x = 3;
+		var y = "3";
+		x + y // Returns "33"
+		
+		
+		
+21. What is Event Propagation?
+
+	* Event propagation is a mechanism that defines how events propagate or travel through the DOM tree to arrive at its target and what happens to it afterward.
+	
+	* Events dont just affect the target element that generated the event—they travel up and down through the DOM tree to reach their target. This is known as event propagation.
+	
+22. What is Event Bubbling?
+	
+	In this phase event propagates or bubbles back up the DOM tree, from the target element up to the Window, visiting all of the ancestors of the target element one by one. For example, if the user clicks a hyperlink, that click event would pass through the <p> element containing the link, the <body> element, the <html> element, and the document node.
+b  
+23. What is Event Capturing?
+	
+	In the capturing phase, events propagate from the Window down through the DOM tree to the target node. For example, if the user clicks a hyperlink, that click event would pass through the <html> element, the <body> element, and the <p> element containing the link.
+	
+24. What is the difference between event.preventDefault() and event.stopPropagation() methods?
+	
+	* The event.stopPropagation() method stops the propagation of an event from occurring in the bubbling or capturing phase.
+
+	* The event.preventDefault() method prevents the default behavior of an element. If we use form element it prevents form submitting. If we use a href element it prevents navigating. If we use contextMenu element it prevents displaying.
+
+25. What is Event Binding?
+
+	Event binding refers to telling the browser that a particular function should be called whenever some 'event' occurs. Events mostly relate to user input, such as clicks.
+
+</script> 
+

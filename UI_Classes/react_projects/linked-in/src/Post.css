@@ -1,0 +1,11 @@
+.border-r {
+  border-radius: 25px;
+}
+
+.border-sqr {
+  height: 150px;
+  border-radius: 10px;
+}
+.underline {
+  border-bottom: 2px solid gray;
+}

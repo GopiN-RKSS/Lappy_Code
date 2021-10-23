@@ -1,0 +1,43 @@
+<html>
+1.	What is HTML?
+Ans:  HTML stands for Hyper Text Mark-up Language. It is used to create and display pages on the web. 
+2.	What is the difference b/w HTML elements and tags?
+Ans:  HTML Tags: Tags are the starting and ending parts of an HTML element. They begin with < symbol and end with > symbol. Whatever written inside < and > are called tags.
+HTML elements: Elements enclose the contents in between the tags. They consist of some kind of structure or expression. It generally consists of a start tag, content and an end tag.
+3.	What are the attributes and how do you use them?
+Ans : HTML Attributes: It is used to define the character of an HTML element. It always placed in the opening tag of an element. It generally provides additional styling (attribute) to the element.
+ Ex : src = “ ”, href = “ ”, type=” ”.
+4.	 What is the difference b/w block-level and inline element?
+       Ans : Block element takes the full width available to it. Ex : <div>, <section>, <h1>
+	Inline elements take the space that is absolutely needed. Ex: <span>, <a>, <input>
+5.	Colgroup in table?
+
+Colgroup specifies a group of one or more columns in a table for formatting.
+
+Ex: <table>
+  <colgroup>
+    <col span="2" style="background-color:red">
+    <col style="background-color:yellow">
+  </colgroup>
+6.	Some common lists in html?
+
+1.	Ordered list
+2.	Unordered list
+3.	Definition list  
+<dl>
+  <dt>Coffee</dt>
+  <dd>Black hot drink</dd>
+  <dt>Milk</dt>
+  <dd>White cold drink</dd>
+</dl>
+Name some new features which were not present in HTML but are added to HTML5?
+Answer: Some new features in HTML5 include:
+•	DOCTYPE declaration: <!DOCTYPE html>
+•	section: Section tag defines a section in the document, such as a header, footer or in other sections of the document. It is used to define the structure of the document. <section></section>
+•	header: Header tag defines the head section of the document. A header section always sticks at the top of the document. <header></header>
+•	footer: Footer tag defines the footer section of the document. A footer section always sticks at the bottom of the document. <footer></footer>
+•	article: Article tag defines an independent piece of the content of a document. <article> </article>
+•	main: The main tag defines the main section in the document which contains the main content of the document. <main></main>
+•	figcaption: Figcaption tag defines the caption for the media elements such as an image or video. <figcaption></figcaption>
+
+</html>

@@ -1,0 +1,20 @@
+img {
+  max-height: 200px;
+  max-width: 240px;
+  width: 240px;
+  height: 200px;
+  object-fit: cover;
+}
+
+.flex {
+  display: flex;
+}
+.underline {
+  border-bottom: 2px dotted gray;
+  margin-left: 15px;
+  text-transform: capitalize;
+  font-weight: bold;
+}
+.right {
+  float: right;
+}
